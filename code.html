@@ -1,0 +1,350 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Land Guzzlers</title>
+	
+	<style>
+        
+   
+
+		/*Graphic Styles*/
+		body {
+			text-align: left;
+		}
+		square {
+            stroke: rgb(255,255,255);
+			fill: black;
+			opacity: 0.6;
+		}
+		
+		/* Use style classes to set colors by fuel type */
+        .LARGE {fill:#ae5700;stroke-width:1.5;stroke:rgb(255,255,255);}         /* black */
+        .MEDIUM-SIZED {fill:#bd9b55;stroke-width:1.5;stroke:rgb(255,255,255);}      /* green */
+        .TOYOTA {fill:#f00060;stroke-width:1.5;stroke:rgb(255,255,255);}        /* blue */
+        .VOLKSWAGEN {fill:#b70049;stroke-width:1.5;stroke:rgb(255,255,255);}          /* brown */
+        .CAT {fill:#ff9900;stroke-width:1.5;stroke:rgb(255,255,255);}          /* orange */
+        .HAMSTER {fill:#000000;stroke-width:1.5;stroke:rgb(255,255,255);text-anchor: "right")}      /* cyan */
+     
+        h2 { 
+         
+         display: block;
+         font-family: sans-serif;
+         font-size: 1.9em;
+         margin-top: 0.5em;
+         margin-bottom: 0.1em;
+         margin-left: 0;
+         margin-right: 0;
+         font-weight: 300;
+}
+    
+        
+        h3 { 
+         
+         display: block;
+         font-family: sans-serif;
+         font-size: 0.9em;
+         margin-top: 0.1em;
+         margin-bottom: -0.1em;
+         margin-left: 0;
+         margin-right: 0;
+                   font-weight: lighter;
+}
+ 
+		
+    </style>
+
+	
+	<script src="https://d3js.org/d3.v5.min.js"></script>
+	<script type="text/javascript">
+		// variables and scripts
+		var data;	// to hold the data
+		
+		// function to get the data from file
+		function getData() {
+			d3.csv("land_guzzlers.csv").then(function(d) {
+				data = d;
+				draw();
+			});
+		}
+		
+		// declare some base variables
+		var drawArea, drawAreaWidth;
+		var hScale, vScale;
+		
+		// draw things
+		function draw() {
+			// setup some things
+			drawArea = d3.select("#landguzzler");
+			drawAreaWidth = +drawArea.attr("width");
+			drawAreaHeight = Number(drawArea.attr("height"));
+			
+			
+			hScale = 10000;
+			vScale = 550;
+            ascale = 600;
+			
+			// now draw the circles
+			var square = drawArea.selectAll("rect")
+				.data(data)
+				.enter().append("rect")
+					.attr("x",function(d) {
+                        screenX = 0;
+						return screenX; 
+					})
+					.attr("y",function(d) {
+                        area = Number(d["footprint"]); 
+                        sidey = Number(Math.sqrt(area));
+						screenY = drawAreaHeight - (sidey*vScale);
+                          //screenY= 500;
+						return screenY;
+					})
+                    .attr("width",function(d) {
+                        area = Number(d["footprint"]); 
+                        widthdim = Number(Math.sqrt(area));
+						return widthdim*ascale;
+                    })
+                    .attr("height",function(d) {
+                        area = Number(d["footprint"]); 
+                        heightdim = Number(Math.sqrt(area));
+						return heightdim*ascale;
+                    })
+                    .attr("class",function(d) {
+                        return d["title"];
+                        
+                    });
+            
+            //variable for text
+            var sqtext = drawArea.selectAll("text")
+            .data(data)
+            .enter().append("text")
+            .attr("x",function(d) {
+                        area = Number(d["footprint"]); 
+                        widthdim = Number(Math.sqrt(area));
+						return widthdim*ascale-10;
+                    })
+            .attr("y",function(d) {
+                 area = Number(d["footprint"]); 
+                 sidey = Number(Math.sqrt(area));
+				 screenY = drawAreaHeight - (sidey*vScale) +15;
+				 return screenY;
+            })
+        
+            //title without HAMSTER
+                sqtext.append("tspan")
+                .text(function (d) {
+                    if (d["title"] == "HAMSTER")
+                         valtext = " "
+                     if (d["title"] !== "HAMSTER")
+                         valtext = d["title"]
+                    return valtext;
+                    })
+                .attr("class","title")
+                .attr("text-anchor", "end")
+                .attr("font-family", "sans-serif")
+                .style("fill", "white")
+            ;
+            //title with HAMSTER for change in text-anchor
+                sqtext.append("tspan")
+                .text(function (d) {
+                    if (d["title"] == "HAMSTER")
+                         valtext = d["title"]
+                    return valtext;
+                    })
+                .attr("class","title")
+                .attr("text-anchor", "right")
+                .attr("font-family", "sans-serif")
+             .attr("x",72)
+                .style("fill", "white")
+            ;
+              
+            
+            //subtitle1
+                sqtext.append("tspan")
+                .text(function (d) {
+                    return d["subtitle"];
+                    })
+                .attr("class","subtitle")
+                .attr("text-anchor", "end")
+                .attr("font-family", "sans-serif")
+                .attr("font-size","13px")
+                .attr("x",function(d) {
+                        area = Number(d["footprint"]); 
+                        widthdim = Number(Math.sqrt(area));
+						return widthdim*ascale -20; })
+                .attr("y",function(d) {
+                 area = Number(d["footprint"]); 
+                 sidey = Number(Math.sqrt(area));
+				 screenY = drawAreaHeight - (sidey*vScale) + 30;
+				 return screenY;})
+                .style("fill", "white")
+            ;
+              
+            //subtitle2
+                sqtext.append("tspan")
+                .text(function (d) {
+                    return d["subtitle2"];
+                    })
+                .attr("class","subtitle2")
+                .attr("text-anchor", "end")
+                .attr("font-family", "sans-serif")
+                .attr("font-size","10px")
+                .attr("x",function(d) {
+                    area = Number(d["footprint"]); 
+                    widthdim = Number(Math.sqrt(area));
+				    return widthdim*ascale-20; })
+                .attr("y",function(d) {
+                    area = Number(d["footprint"]); 
+                    sidey = Number(Math.sqrt(area));
+				    screenY = drawAreaHeight - (sidey*vScale) + 40;
+				 return screenY;})
+                .style("fill", "white")
+            ;
+            
+             //subtitle3
+                sqtext.append("tspan")
+                .text(function (d) {
+                    return d["subtitle3"];
+                    })
+                .attr("class","subtitle3")
+                .attr("text-anchor", "end")
+                .attr("font-family", "sans-serif")
+                .attr("font-size","10px")
+                .attr("x",function(d) {
+                        area = Number(d["footprint"]); 
+                        widthdim = Number(Math.sqrt(area));
+						return widthdim*ascale-20; })
+                .attr("y",function(d) {
+                    area = Number(d["footprint"]); 
+                    sidey = Number(Math.sqrt(area));
+                    screenY = drawAreaHeight - (sidey*vScale) + 50;
+                    return screenY;  })
+                    .style("fill", "white")
+            ;
+           
+            // transformed subtitle
+                sqtext.append("tspan")
+                .text(function (d) {
+                     if (d["title"] == "VOLKSWAGEN GOLF")
+                         valtext = " "
+
+                     if (d["title"] !== "VOLKSWAGEN GOLF")
+                         valtext = "Eco-footprint: " + d["footprint"] + "hectares"  
+                     if (d["title"] == "HAMSTER")
+                         valtext = " "
+                    return valtext;
+                    })
+                .attr("class","valtext")
+                .attr("text-anchor", "end")
+                .attr("font-family", "sans-serif")
+                .attr("font-size","12px")
+                .attr("x",function(d) {
+                        area = Number(d["footprint"]); 
+                        widthdim = Number(Math.sqrt(area));
+						return widthdim*ascale-6; })
+                .attr("y",function(d) {
+                    area = Number(d["footprint"]); 
+                    sidey = Number(Math.sqrt(area));
+                    screenY = drawAreaHeight - (sidey*vScale) + 170;
+                    return screenY;  })
+                    .style("fill", "white")
+                    .style("writing-mode","tb")
+            ;
+            
+            //combine
+            sqtext.selectAll("tspan.text")
+                .data(data)
+                .enter().append("tspan")
+                .attr("class","text")
+                //.text(d)
+                ;
+
+ //Draw the lines
+ var linedraw = drawArea.append("line")
+                          .attr("x1", 375)
+                          .attr("y1",114)
+                          .attr("x2", 535)
+                          .attr("y2", 114)
+                         .attr("stroke-width", 0.7)
+                         .attr("stroke", "white")
+ 
+               drawArea.append("line")
+                          .attr("x1", 535)
+                          .attr("y1",114)
+                          .attr("x2", 535)
+                          .attr("y2", 160)
+                         .attr("stroke-width", 0.7)
+                         .attr("stroke", "white")
+            
+               drawArea.append("line")
+                          .attr("x1", 180)
+                          .attr("y1",265)
+                          .attr("x2", 370)
+                          .attr("y2", 265)
+                         .attr("stroke-width", 0.7)
+                         .attr("stroke", "white")
+            
+                          drawArea.append("line")
+                          .attr("x1", 370)
+                          .attr("y1",265)
+                          .attr("x2", 370)
+                          .attr("y2", 300)
+                         .attr("stroke-width", 0.7)
+                         .attr("stroke", "white")
+ 
+ ;
+            
+// Updating text for HAMSTER
+    var textham =  drawArea.append("text")
+                .text(function(d){
+                    text = "Eco-footprint: " 
+                    return text;
+                })
+                .attr("x",73)
+                .attr("y",565)
+                .attr("font-family", "sans-serif")
+                .attr("font-size","15px")
+                .attr("fill", "white");
+            
+    var textham2 =  drawArea.append("text")
+                .text(function(d){
+                    text = "0.014 hectares" 
+                    return text;
+                })
+                .attr("x",73)
+                .attr("y",580)
+                .attr("font-family", "sans-serif")
+                .attr("font-size","12px")
+                .attr("fill", "white");
+            
+    //add copyright
+        var copyright = drawArea.append("text")
+            .attr("x", 590)
+            .attr("y", 14)
+            .html("&copy;")
+             .attr("fill", "grey");
+            
+    //add copyright text
+        var copyright = drawArea.append("text")
+            .attr("x", 605)
+            .attr("y", 14)
+            .text(function(d){
+                    text = "NewScientist" 
+                    return text;
+                })
+             .attr("fill", "grey");
+        
+            
+        }
+
+        
+	</script>
+</head>
+<body onload="getData()">
+	<h2>Land guzzlers</h2>
+    <h3>The ecological footprints of our pets can make SUVs look positively eco-friendly</h3>
+	
+	<svg id="landguzzler" width="1000" height="600"></svg>
+
+</body>
+</html>
